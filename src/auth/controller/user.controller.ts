@@ -14,19 +14,28 @@ import { Serialize } from '../../interceptor/serialize.interceptor';
 import { CreateUserDto } from '../client/create-user.dto';
 import { UpdateUserDto } from '../client/update-user.dto';
 import { UserDto } from '../client/user.dto';
+import { AuthService } from '../service/auth.service';
 
 @Controller('auth')
 @Serialize(UserDto)
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private authService: AuthService,
+  ) {}
 
   @Post('/signup')
   @ApiOperation({ summary: 'Create user' })
   createUser(@Body() createUserReq: CreateUserDto) {
-    this.userService.create(createUserReq.email, createUserReq.password);
+    return this.authService.signup(createUserReq.email, createUserReq.password);
   }
 
-  //@UseInterceptors(new SerializeInterceptor(UserDto))
+  @Post('/sign-in')
+  @ApiOperation({ summary: 'Login' })
+  signin(@Body() createUserReq: CreateUserDto) {
+    return this.authService.signin(createUserReq.email, createUserReq.password);
+  }
+
   @Get('/:id')
   findUser(@Param('id') id: string) {
     console.log('handler is running');
