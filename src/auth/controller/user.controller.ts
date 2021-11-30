@@ -9,12 +9,14 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
-import { CreateUserDto } from '../client/create-user.dto';
 import { UserService } from '../../auth/service/user.service';
-import { get } from 'http';
+import { Serialize } from '../../interceptor/serialize.interceptor';
+import { CreateUserDto } from '../client/create-user.dto';
 import { UpdateUserDto } from '../client/update-user.dto';
+import { UserDto } from '../client/user.dto';
 
 @Controller('auth')
+@Serialize(UserDto)
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -24,8 +26,11 @@ export class UserController {
     this.userService.create(createUserReq.email, createUserReq.password);
   }
 
+  //@UseInterceptors(new SerializeInterceptor(UserDto))
   @Get('/:id')
   findUser(@Param('id') id: string) {
+    console.log('handler is running');
+
     return this.userService.findOne(parseInt(id));
   }
 
