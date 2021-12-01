@@ -95,7 +95,6 @@ export class UserController {
     return this.userService.findOne(parseInt(id));
   }
 
-  @Get()
   @Get('/:id')
   @ApiOperation({ summary: 'Get users by email' })
   findByEmail(@Query('email') email: string) {
@@ -105,7 +104,7 @@ export class UserController {
   @Delete('/:id')
   @ApiOperation({ summary: 'Delete an user' })
   deleteUser(@Param('id') id: string) {
-    return this.userService.remove(parseInt(id));
+    return this.userService.delete(parseInt(id));
   }
 
   @Put('/:id')

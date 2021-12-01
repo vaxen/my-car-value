@@ -1,25 +1,17 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { User } from '../model/user.entity';
 import { AuthService } from './auth.service';
 import { UserService } from './user.service';
 
 describe('AuthService test suite', () => {
   let victim: AuthService;
   let mockUserService: Partial<UserService>;
+  const USER = { id: 1, email: 'dummy_email', password: 'dummyPass' };
 
   beforeEach(async () => {
-    const users: User[] = [];
     mockUserService = {
-      findByEmail: (email: string) => {
-        const filteredUsers = users.filter((user) => user.email === email);
-        return Promise.resolve(filteredUsers);
-      },
-      create: (email: string, password: string) => {
-        const user = { id: Math.random() * 99999, email, password } as User;
-        users.push(user);
-        return Promise.resolve(user);
-      },
+      findByEmail: jest.fn(),
+      create: jest.fn(),
     };
     const module = await Test.createTestingModule({
       providers: [
@@ -36,14 +28,23 @@ describe('AuthService test suite', () => {
   });
 
   it('should  create an user with salted and hashed password', async () => {
-    const user = await victim.signup('adsd@gmail.com', 'dummy_password');
-    const [salt, hash] = user.password.split('.');
-    expect(salt).toBeDefined();
-    expect(hash).toBeDefined();
+    //given
+    mockUserService.findByEmail = jest.fn().mockResolvedValue([]);
+    mockUserService.create = jest.fn().mockResolvedValue(USER);
+    //when
+    const user = await victim.signup(USER.email, USER.password);
+    //then
+    expect(mockUserService.findByEmail).toHaveBeenNthCalledWith(1, USER.email);
+    expect(mockUserService.create).toHaveBeenNthCalledWith(
+      1,
+      USER.email,
+      expect.stringContaining('.'),
+    );
+    expect(user).toEqual(USER);
   });
 
   it('should throw an error if user signup with email that is already used', async () => {
-    await victim.signup('asdf@asdf.com', 'asdf');
+    mockUserService.findByEmail = jest.fn().mockResolvedValue([USER]);
 
     await expect(victim.signup('asdf@asdf.com', 'asdf')).rejects.toThrow(
       'Email already exist',
@@ -54,13 +55,15 @@ describe('AuthService test suite', () => {
   });
 
   it('should throw an error if user sign in in with non existing email', async () => {
+    mockUserService.findByEmail = jest.fn().mockResolvedValue([]);
+
     await expect(victim.signin('asdf@asdf.com', 'asdf')).rejects.toBeInstanceOf(
       NotFoundException,
     );
   });
 
   it('should throw an error if invalid password is provided', async () => {
-    await victim.signup('asdf@asdf.com', 'asdf');
+    mockUserService.findByEmail = jest.fn().mockResolvedValue([USER]);
 
     await expect(
       victim.signin('asdf@asdf.com', 'invalid-pass'),
@@ -68,8 +71,9 @@ describe('AuthService test suite', () => {
   });
 
   it('should return an user if correct password is provided', async () => {
-    await victim.signup('demo@gmail.com', 'mypass');
-    const user = await expect(victim.signin('demo@gmail.com', 'mypass'));
+    mockUserService.findByEmail = jest.fn().mockResolvedValue([USER]);
+
+    const user = await expect(victim.signin('demo@gmail.com', USER.password));
     expect(user).toBeDefined();
   });
 });
