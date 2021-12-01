@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { Expose } from 'class-transformer';
 
 export class UserDto {

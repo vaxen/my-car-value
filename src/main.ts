@@ -1,11 +1,11 @@
-import { ValidationPipe } from '@nestjs/common';
+/* istanbul ignore file */
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-const cookieSession = require('cookie-session');
 import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  console.log(`config path: ./config/${process.env.NODE_ENV}.env`);
 
   //SWAGGER CONFIG
   const config = new DocumentBuilder()
@@ -14,17 +14,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-
   SwaggerModule.setup('api', app, document);
-  //Cookies
-  app.use(
-    cookieSession({
-      //key use to encrypt the cookie
-      keys: ['asfasgasgasg'],
-    }),
-  );
-  //VALIDATIONS
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   await app.listen(3000);
 }
