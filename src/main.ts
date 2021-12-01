@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+const cookieSession = require('cookie-session');
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -15,7 +16,13 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('api', app, document);
-
+  //Cookies
+  app.use(
+    cookieSession({
+      //key use to encrypt the cookie
+      keys: ['asfasgasgasg'],
+    }),
+  );
   //VALIDATIONS
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
