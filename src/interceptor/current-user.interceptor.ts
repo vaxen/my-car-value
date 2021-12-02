@@ -6,6 +6,9 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../auth/service/user.service';
 
+//not used, replaced with current user middleware
+//reason: req-> middleware ->guard -> interceptor -> request handler -> response
+//so our admin guard could not read the currentUser from the session injected by this interceptor
 @Injectable()
 export class CurrentUserInterceptor implements NestInterceptor {
   constructor(private userService: UserService) {}
