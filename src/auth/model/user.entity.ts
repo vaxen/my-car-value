@@ -1,10 +1,12 @@
 /* istanbul ignore file */
+import { Report } from 'src/report/model/report.entity';
 import {
   AfterInsert,
   AfterRemove,
   AfterUpdate,
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -18,6 +20,9 @@ export class User {
 
   @Column()
   password: string;
+
+  @OneToMany(() => Report, (report) => report.id)
+  reportsId: number[];
 
   @AfterInsert()
   logInsert() {
