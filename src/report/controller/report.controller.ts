@@ -38,7 +38,7 @@ export class ReportController {
     return this.reportService.approve(reportId, body.approved);
   }
 
-  @Get()
+  @Get('/estimate')
   getEstimate(@Query() query: GetEstimateDto) {
     return this.reportService.getEstimate(query);
   }
